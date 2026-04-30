@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#6C63FF">
+<title>Weight Tracker</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --purple: #6C63FF; --purple-light: #EEF0FF; --purple-dark: #4B44C8;
+    --green: #2DD4A0; --red: #FF6B6B;
+    --text: #1A1A2E; --text-2: #6B7280; --bg: #F7F8FC; --card: #FFFFFF;
+    --border: #E8EAF0; --radius: 18px; --shadow: 0 2px 16px rgba(108,99,255,0.10);
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 40px; }
+  .header { background: linear-gradient(135deg, var(--purple) 0%, #8B5CF6 100%); color: white; padding: 52px 20px 28px; text-align: center; }
+  .header h1 { font-size: 22px; font-weight: 700; }
+  .header .date { font-size: 13px; opacity: 0.8; margin-top: 4px; }
+  .cards { padding: 0 16px; margin-top: -16px; }
+  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-bottom: 14px; }
+  .card-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-2); margin-bottom: 14px; }
+  .log-card { text-align: center; }
+  .weight-display { font-size: 64px; font-weight: 800; line-height: 1; color: var(--purple); letter-spacing: -2px; margin: 8px 0; min-height: 72px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+  .weight-display .unit { font-size: 22px; font-weight: 500; color: var(--text-2); align-self: flex-end; padding-bottom: 10px; }
+  .weight-display.placeholder { color: #CBD5E1; }
+  .weight-input-row { display: flex; gap: 10px; margin-top: 12px; }
+  .weight-input { flex: 1; height: 52px; border: 2px solid var(--border); border-radius: 12px; font-size: 22px; font-weight: 700; text-align: center; color: var(--text); outline: none; transition: border-color 0.2s; background: var(--bg); -moz-appearance: textfield; }
+  .weight-input::-webkit-inner-spin-button, .weight-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .weight-input:focus { border-color: var(--purple); }
+  .save-btn { height: 52px; padding: 0 24px; background: var(--purple); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.15s, transform 0.1s; white-space: nowrap; }
+  .save-btn:active { background: var(--purple-dark); transform: scale(0.97); }
+  .save-btn:disabled { background: #C7C9E2; cursor: not-allowed; transform: none; }
+  .log-status { font-size: 13px; margin-top: 10px; min-height: 20px; color: var(--text-2); }
+  .log-status.success { color: var(--green); font-weight: 600; }
+  .log-status.error { color: var(--red); }
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-item { text-align: center; }
+  .stat-value { font-size: 26px; font-weight: 800; line-height: 1.1; letter-spacing: -0.5px; }
+  .stat-label { font-size: 11px; color: var(--text-2); margin-top: 3px; line-height: 1.3; }
+  .stat-value.up { color: var(--red); }
+  .stat-value.down { color: var(--green); }
+  .stat-value.neutral { color: var(--purple); }
+  .chart-wrap { position: relative; height: 200px; margin-top: 4px; }
+  .yoy-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .yoy-table th { text-align: right; font-size: 11px; font-weight: 600; color: var(--text-2); padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .yoy-table th:first-child { text-align: left; }
+  .yoy-table td { padding: 9px 0; text-align: right; border-bottom: 1px solid var(--border); }
+  .yoy-table tr:last-child td { border-bottom: none; }
+  .yoy-table td:first-child { text-align: left; font-weight: 700; }
+  .yoy-table .pos { color: var(--red); }
+  .yoy-table .neg { color: var(--green); }
+  .yoy-table .cur-row td { color: var(--purple); font-weight: 700; }
+  .streak-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; }
+  .streak-badge { background: var(--purple-light); color: var(--purple); font-weight: 700; font-size: 13px; border-radius: 20px; padding: 4px 12px; }
+  .streak-label { font-size: 13px; color: var(--text-2); }
+  .skeleton { background: linear-gradient(90deg, #E8EAF0 25%, #F3F4F8 50%, #E8EAF0 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 8px; color: transparent !important; pointer-events: none; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .legend { display: flex; gap: 16px; justify-content: center; margin-bottom: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-2); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .empty-msg { text-align: center; color: var(--text-2); font-size: 14px; padding: 20px 0; }
+  .loading-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 100; transition: opacity 0.4s; }
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+  .spinner { width: 40px; height: 40px; border: 3px solid var(--purple-light); border-top-color: var(--purple); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { color: var(--text-2); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">Loading your data…</div>
+</div>
+
+<div class="header">
+  <h1>⚖️ Weight Tracker</h1>
+  <div class="date" id="headerDate"></div>
+</div>
+
+<div class="cards">
+
+  <div class="card log-card">
+    <div class="card-title">Today's Weight</div>
+    <div class="weight-display placeholder" id="weightDisplay">
+      <span id="weightVal">—</span><span class="unit">lbs</span>
+    </div>
+    <div class="weight-input-row">
+      <input type="number" class="weight-input" id="weightInput" placeholder="e.g. 162.4" step="0.1" min="50" max="700" inputmode="decimal">
+      <button class="save-btn" id="saveBtn" onclick="saveWeight()">Save</button>
+    </div>
+    <div class="log-status" id="logStatus"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Stats</div>
+    <div class="stats-grid">
+      <div class="stat-item"><div class="stat-value neutral skeleton" id="stat7avg">——</div><div class="stat-label">7-day average</div></div>
+      <div class="stat-item"><div class="stat-value skeleton" id="statWeekRate">——</div><div class="stat-label">lbs/week (30d trend)</div></div>
+      <div class="stat-item"><div class="stat-value skeleton" id="statYTD">——</div><div class="stat-label">Change since Jan 1</div></div>
+      <div class="stat-item"><div class="stat-value skeleton" id="statVsLastYear">——</div><div class="stat-label">vs same day last year</div></div>
+    </div>
+    <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px;">
+      <div class="streak-row"><span class="streak-badge skeleton" id="daysLogged">— days</span><span class="streak-label">logged this year</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Last 90 Days</div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#6C63FF"></div><span id="legendThisYear">This year</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#CBD5E1"></div><span id="legendLastYear">Last year</span></div>
+    </div>
+    <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Year Over Year</div>
+    <div id="yoyContent"><div class="empty-msg">Loading…</div></div>
+  </div>
+
+</div>
+
+<script>
+// ── YOUR API URL — do not change this ────────────────────────
+const API = 'https://script.google.com/macros/s/AKfycbwYI9ts46DmcxANdkUQ9pUOTkw3KW40pEMvTSaw96ZiwbxuLekVyK9N9CVnjoah41l3iQ/exec';
+
+// ── Date header ──────────────────────────────────────────────
+document.getElementById('headerDate').textContent = new Date().toLocaleDateString('en-US', {
+  weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+});
+
+let trendChart = null;
+
+// ── Load dashboard ───────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const resp = await fetch(`${API}?action=getData`);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    renderDashboard(data);
+    document.getElementById('loadingOverlay').classList.add('hidden');
+  } catch (err) {
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    document.getElementById('logStatus').textContent = 'Could not load data: ' + err.message;
+    document.getElementById('logStatus').className = 'log-status error';
+  }
+}
+
+// ── Render ───────────────────────────────────────────────────
+function renderDashboard(data) {
+  // Today's weight
+  const wDisp = document.getElementById('weightDisplay');
+  if (data.todayWeight !== null) {
+    document.getElementById('weightVal').textContent = data.todayWeight;
+    wDisp.classList.remove('placeholder');
+    document.getElementById('weightInput').value = data.todayWeight;
+    document.getElementById('logStatus').textContent = '✓ Already logged today';
+    document.getElementById('logStatus').className = 'log-status success';
+  } else {
+    document.getElementById('weightVal').textContent = '—';
+    wDisp.classList.add('placeholder');
+  }
+
+  // Stats
+  setStat('stat7avg', data.sevenDayAvg);
+  setChangeStat('statWeekRate', data.weeklyRate);
+  setChangeStat('statYTD', data.totalChangeThisYear);
+
+  if (data.lastYearSameDay !== null && data.latestWeight !== null) {
+    setChangeStat('statVsLastYear', Math.round((data.latestWeight - data.lastYearSameDay) * 10) / 10);
+  } else {
+    clearStat('statVsLastYear');
+  }
+
+  const dlEl = document.getElementById('daysLogged');
+  dlEl.classList.remove('skeleton');
+  dlEl.textContent = (data.daysLoggedThisYear || 0) + ' days';
+
+  document.getElementById('legendThisYear').textContent = String(data.currentYear);
+  document.getElementById('legendLastYear').textContent = String(data.currentYear - 1);
+
+  renderChart(data);
+  renderYoY(data);
+}
+
+function setStat(id, value) {
+  const el = document.getElementById(id);
+  el.classList.remove('skeleton');
+  el.textContent = value !== null && value !== undefined ? value : '—';
+}
+
+function setChangeStat(id, value) {
+  const el = document.getElementById(id);
+  el.classList.remove('skeleton');
+  if (value !== null && value !== undefined) {
+    el.textContent = (value > 0 ? '+' : '') + value;
+    el.className = 'stat-value ' + (value < 0 ? 'down' : value > 0 ? 'up' : 'neutral');
+  } else {
+    el.textContent = '—';
+    el.className = 'stat-value neutral';
+  }
+}
+
+function clearStat(id) {
+  const el = document.getElementById(id);
+  el.classList.remove('skeleton');
+  el.textContent = '—';
+  el.className = 'stat-value neutral';
+}
+
+function renderChart(data) {
+  const labels  = data.chartLabels   || [];
+  const thisYr  = data.chartWeights  || [];
+  const lastYr  = data.chartLastYear || [];
+  if (trendChart) { trendChart.destroy(); trendChart = null; }
+  if (!labels.length) return;
+
+  const step = Math.max(1, Math.floor(labels.length / 10));
+  const displayLabels = labels.map((l, i) => i % step === 0 ? l : '');
+  const allVals = [...thisYr, ...lastYr].filter(v => v != null);
+  const minY = allVals.length ? Math.floor(Math.min(...allVals)) - 3 : 140;
+  const maxY = allVals.length ? Math.ceil(Math.max(...allVals))  + 3 : 200;
+
+  trendChart = new Chart(document.getElementById('trendChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: displayLabels,
+      datasets: [
+        { label: String(data.currentYear), data: thisYr, borderColor: '#6C63FF', backgroundColor: 'rgba(108,99,255,0.08)', borderWidth: 2.5, pointRadius: 0, pointHoverRadius: 5, tension: 0.35, fill: true, spanGaps: true },
+        { label: String(data.currentYear - 1), data: lastYr, borderColor: '#CBD5E1', borderWidth: 1.5, pointRadius: 0, pointHoverRadius: 4, tension: 0.35, fill: false, spanGaps: true }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y != null ? ctx.dataset.label + ': ' + ctx.parsed.y + ' lbs' : null } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#9CA3AF', maxRotation: 0 } },
+        y: { min: minY, max: maxY, grid: { color: '#F0F1F5' }, ticks: { font: { size: 11 }, color: '#9CA3AF' } }
+      }
+    }
+  });
+}
+
+function renderYoY(data) {
+  const container = document.getElementById('yoyContent');
+  const yoy = data.yoySummary || [];
+  if (!yoy.length) { container.innerHTML = '<div class="empty-msg">No data found</div>'; return; }
+
+  container.innerHTML = `<table class="yoy-table">
+    <thead><tr><th>Year</th><th>Start</th><th>Latest</th><th>Change</th><th>Days</th></tr></thead>
+    <tbody>${yoy.map(e => {
+      const isCur = e.year === data.currentYear;
+      const cls   = e.change < 0 ? 'neg' : e.change > 0 ? 'pos' : '';
+      const sign  = e.change > 0 ? '+' : '';
+      return `<tr class="${isCur ? 'cur-row' : ''}">
+        <td>${e.year}${isCur ? ' ★' : ''}</td>
+        <td>${e.start ?? '—'}</td>
+        <td>${e.end   ?? '—'}</td>
+        <td class="${cls}">${e.change != null ? sign + e.change : '—'}</td>
+        <td>${e.days}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+// ── Save weight ──────────────────────────────────────────────
+async function saveWeight() {
+  const input  = document.getElementById('weightInput');
+  const btn    = document.getElementById('saveBtn');
+  const status = document.getElementById('logStatus');
+  const val    = parseFloat(input.value);
+
+  if (isNaN(val) || val < 50 || val > 700) {
+    status.textContent = 'Please enter a valid weight (50–700 lbs)';
+    status.className = 'log-status error';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  status.textContent = '';
+
+  try {
+    const resp = await fetch(`${API}?action=logWeight&weight=${val}`);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const result = await resp.json();
+
+    btn.disabled = false;
+    btn.textContent = 'Save';
+
+    if (result.success) {
+      status.textContent = '✓ Saved ' + val + ' lbs to your spreadsheet!';
+      status.className = 'log-status success';
+      document.getElementById('weightVal').textContent = val;
+      document.getElementById('weightDisplay').classList.remove('placeholder');
+      setTimeout(loadDashboard, 1000);
+    } else {
+      status.textContent = 'Error: ' + result.error;
+      status.className = 'log-status error';
+    }
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Save';
+    status.textContent = 'Failed: ' + err.message;
+    status.className = 'log-status error';
+  }
+}
+
+document.getElementById('weightInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveWeight();
+});
+
+// ── Boot ─────────────────────────────────────────────────────
+loadDashboard();
+</script>
+</body>
+</html>
