@@ -72,7 +72,6 @@
 </head>
 <body>
 
-<!-- Loading overlay -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
   <div class="loading-text">Loading your data…</div>
@@ -84,7 +83,6 @@
 </div>
 
 <div class="cards">
-
   <div class="card log-card">
     <div class="card-title">Today's Weight</div>
     <div class="weight-display placeholder" id="weightDisplay">
@@ -123,12 +121,22 @@
     <div class="card-title">Year Over Year</div>
     <div id="yoyContent"><div class="empty-msg">Loading…</div></div>
   </div>
-
 </div>
 
 <script>
-// ── YOUR API URL — do not change this ────────────────────────
-const API = 'https://script.google.com/macros/s/AKfycbwYI9ts46DmcxANdkUQ9pUOTkw3KW40pEMvTSaw96ZiwbxuLekVyK9N9CVnjoah41l3iQ/exec';
+// ── API — uses JSONP to avoid CORS issues ────────────────────
+const API = 'https://script.google.com/macros/s/AKfycbyPbVsxX0o2CzSOB5fWe5mBTIy_0kkEXxLdubXbG8epiytYvE6kjo0a4JfbboJygWrMxg/exec';
+
+function jsonp(url) {
+  return new Promise((resolve, reject) => {
+    const cb = '__wt_' + Date.now();
+    const script = document.createElement('script');
+    window[cb] = (data) => { delete window[cb]; script.remove(); resolve(data); };
+    script.onerror = () => { delete window[cb]; script.remove(); reject(new Error('Request failed')); };
+    script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
+    document.head.appendChild(script);
+  });
+}
 
 // ── Date header ──────────────────────────────────────────────
 document.getElementById('headerDate').textContent = new Date().toLocaleDateString('en-US', {
@@ -137,12 +145,9 @@ document.getElementById('headerDate').textContent = new Date().toLocaleDateStrin
 
 let trendChart = null;
 
-// ── Load dashboard ───────────────────────────────────────────
 async function loadDashboard() {
   try {
-    const resp = await fetch(`${API}?action=getData`);
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const data = await resp.json();
+    const data = await jsonp(API + '?action=getData');
     renderDashboard(data);
     document.getElementById('loadingOverlay').classList.add('hidden');
   } catch (err) {
@@ -152,9 +157,7 @@ async function loadDashboard() {
   }
 }
 
-// ── Render ───────────────────────────────────────────────────
 function renderDashboard(data) {
-  // Today's weight
   const wDisp = document.getElementById('weightDisplay');
   if (data.todayWeight !== null) {
     document.getElementById('weightVal').textContent = data.todayWeight;
@@ -167,7 +170,6 @@ function renderDashboard(data) {
     wDisp.classList.add('placeholder');
   }
 
-  // Stats
   setStat('stat7avg', data.sevenDayAvg);
   setChangeStat('statWeekRate', data.weeklyRate);
   setChangeStat('statYTD', data.totalChangeThisYear);
@@ -192,7 +194,7 @@ function renderDashboard(data) {
 function setStat(id, value) {
   const el = document.getElementById(id);
   el.classList.remove('skeleton');
-  el.textContent = value !== null && value !== undefined ? value : '—';
+  el.textContent = (value !== null && value !== undefined) ? value : '—';
 }
 
 function setChangeStat(id, value) {
@@ -261,8 +263,7 @@ function renderYoY(data) {
       const sign  = e.change > 0 ? '+' : '';
       return `<tr class="${isCur ? 'cur-row' : ''}">
         <td>${e.year}${isCur ? ' ★' : ''}</td>
-        <td>${e.start ?? '—'}</td>
-        <td>${e.end   ?? '—'}</td>
+        <td>${e.start ?? '—'}</td><td>${e.end ?? '—'}</td>
         <td class="${cls}">${e.change != null ? sign + e.change : '—'}</td>
         <td>${e.days}</td>
       </tr>`;
@@ -270,7 +271,6 @@ function renderYoY(data) {
   </table>`;
 }
 
-// ── Save weight ──────────────────────────────────────────────
 async function saveWeight() {
   const input  = document.getElementById('weightInput');
   const btn    = document.getElementById('saveBtn');
@@ -288,13 +288,9 @@ async function saveWeight() {
   status.textContent = '';
 
   try {
-    const resp = await fetch(`${API}?action=logWeight&weight=${val}`);
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const result = await resp.json();
-
+    const result = await jsonp(API + '?action=logWeight&weight=' + val);
     btn.disabled = false;
     btn.textContent = 'Save';
-
     if (result.success) {
       status.textContent = '✓ Saved ' + val + ' lbs to your spreadsheet!';
       status.className = 'log-status success';
@@ -317,7 +313,6 @@ document.getElementById('weightInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') saveWeight();
 });
 
-// ── Boot ─────────────────────────────────────────────────────
 loadDashboard();
 </script>
 </body>
