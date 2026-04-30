@@ -124,21 +124,19 @@
 </div>
 
 <script>
-// ── API — uses JSONP to avoid CORS issues ────────────────────
-const API = 'https://script.google.com/macros/s/AKfycbyPbVsxX0o2CzSOB5fWe5mBTIy_0kkEXxLdubXbG8epiytYvE6kjo0a4JfbboJygWrMxg/exec';
+const API = 'https://script.google.com/macros/s/AKfycbxd6Ao8zYbGBxx8J143tonOR-Uw-9qKIalC5VmjWCOdT00Ti0fyVt2us0skPYwArxFNNg/exec';
 
 function jsonp(url) {
   return new Promise((resolve, reject) => {
     const cb = '__wt_' + Date.now();
     const script = document.createElement('script');
     window[cb] = (data) => { delete window[cb]; script.remove(); resolve(data); };
-    script.onerror = () => { delete window[cb]; script.remove(); reject(new Error('Request failed')); };
+    script.onerror = () => { delete window[cb]; script.remove(); reject(new Error('Request failed — check your Apps Script deployment')); };
     script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
     document.head.appendChild(script);
   });
 }
 
-// ── Date header ──────────────────────────────────────────────
 document.getElementById('headerDate').textContent = new Date().toLocaleDateString('en-US', {
   weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
 });
@@ -169,24 +167,19 @@ function renderDashboard(data) {
     document.getElementById('weightVal').textContent = '—';
     wDisp.classList.add('placeholder');
   }
-
   setStat('stat7avg', data.sevenDayAvg);
   setChangeStat('statWeekRate', data.weeklyRate);
   setChangeStat('statYTD', data.totalChangeThisYear);
-
   if (data.lastYearSameDay !== null && data.latestWeight !== null) {
     setChangeStat('statVsLastYear', Math.round((data.latestWeight - data.lastYearSameDay) * 10) / 10);
   } else {
     clearStat('statVsLastYear');
   }
-
   const dlEl = document.getElementById('daysLogged');
   dlEl.classList.remove('skeleton');
   dlEl.textContent = (data.daysLoggedThisYear || 0) + ' days';
-
   document.getElementById('legendThisYear').textContent = String(data.currentYear);
   document.getElementById('legendLastYear').textContent = String(data.currentYear - 1);
-
   renderChart(data);
   renderYoY(data);
 }
@@ -217,18 +210,16 @@ function clearStat(id) {
 }
 
 function renderChart(data) {
-  const labels  = data.chartLabels   || [];
-  const thisYr  = data.chartWeights  || [];
-  const lastYr  = data.chartLastYear || [];
+  const labels = data.chartLabels || [];
+  const thisYr = data.chartWeights || [];
+  const lastYr = data.chartLastYear || [];
   if (trendChart) { trendChart.destroy(); trendChart = null; }
   if (!labels.length) return;
-
   const step = Math.max(1, Math.floor(labels.length / 10));
   const displayLabels = labels.map((l, i) => i % step === 0 ? l : '');
   const allVals = [...thisYr, ...lastYr].filter(v => v != null);
   const minY = allVals.length ? Math.floor(Math.min(...allVals)) - 3 : 140;
-  const maxY = allVals.length ? Math.ceil(Math.max(...allVals))  + 3 : 200;
-
+  const maxY = allVals.length ? Math.ceil(Math.max(...allVals)) + 3 : 200;
   trendChart = new Chart(document.getElementById('trendChart').getContext('2d'), {
     type: 'line',
     data: {
@@ -254,13 +245,12 @@ function renderYoY(data) {
   const container = document.getElementById('yoyContent');
   const yoy = data.yoySummary || [];
   if (!yoy.length) { container.innerHTML = '<div class="empty-msg">No data found</div>'; return; }
-
   container.innerHTML = `<table class="yoy-table">
     <thead><tr><th>Year</th><th>Start</th><th>Latest</th><th>Change</th><th>Days</th></tr></thead>
     <tbody>${yoy.map(e => {
       const isCur = e.year === data.currentYear;
-      const cls   = e.change < 0 ? 'neg' : e.change > 0 ? 'pos' : '';
-      const sign  = e.change > 0 ? '+' : '';
+      const cls = e.change < 0 ? 'neg' : e.change > 0 ? 'pos' : '';
+      const sign = e.change > 0 ? '+' : '';
       return `<tr class="${isCur ? 'cur-row' : ''}">
         <td>${e.year}${isCur ? ' ★' : ''}</td>
         <td>${e.start ?? '—'}</td><td>${e.end ?? '—'}</td>
@@ -276,17 +266,14 @@ async function saveWeight() {
   const btn    = document.getElementById('saveBtn');
   const status = document.getElementById('logStatus');
   const val    = parseFloat(input.value);
-
   if (isNaN(val) || val < 50 || val > 700) {
     status.textContent = 'Please enter a valid weight (50–700 lbs)';
     status.className = 'log-status error';
     return;
   }
-
   btn.disabled = true;
   btn.textContent = 'Saving…';
   status.textContent = '';
-
   try {
     const result = await jsonp(API + '?action=logWeight&weight=' + val);
     btn.disabled = false;
