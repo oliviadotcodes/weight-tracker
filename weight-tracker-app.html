@@ -10,41 +10,169 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
   :root {
-    --purple: #6C63FF; --purple-light: #EEF0FF; --purple-dark: #4B44C8;
-    --green: #2DD4A0; --red: #FF6B6B;
-    --text: #1A1A2E; --text-2: #6B7280; --bg: #F7F8FC; --card: #FFFFFF;
-    --border: #E8EAF0; --radius: 18px; --shadow: 0 2px 16px rgba(108,99,255,0.10);
+    --purple: #6C63FF;
+    --purple-light: #EEF0FF;
+    --purple-dark: #4B44C8;
+    --green: #2DD4A0;
+    --red: #FF6B6B;
+    --yellow: #FFCA28;
+    --text: #1A1A2E;
+    --text-2: #6B7280;
+    --bg: #F7F8FC;
+    --card: #FFFFFF;
+    --border: #E8EAF0;
+    --radius: 18px;
+    --shadow: 0 2px 16px rgba(108,99,255,0.10);
   }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 40px; }
-  .header { background: linear-gradient(135deg, var(--purple) 0%, #8B5CF6 100%); color: white; padding: 52px 20px 28px; text-align: center; }
-  .header h1 { font-size: 22px; font-weight: 700; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 32px;
+  }
+
+  .header {
+    background: linear-gradient(135deg, var(--purple) 0%, #8B5CF6 100%);
+    color: white;
+    padding: 52px 20px 28px;
+    text-align: center;
+  }
+  .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
   .header .date { font-size: 13px; opacity: 0.8; margin-top: 4px; }
+
   .cards { padding: 0 16px; margin-top: -16px; }
-  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-bottom: 14px; }
-  .card-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-2); margin-bottom: 14px; }
+
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+
+  .card-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-2);
+    margin-bottom: 14px;
+  }
+
   .log-card { text-align: center; }
-  .weight-display { font-size: 64px; font-weight: 800; line-height: 1; color: var(--purple); letter-spacing: -2px; margin: 8px 0; min-height: 72px; display: flex; align-items: center; justify-content: center; gap: 4px; }
-  .weight-display .unit { font-size: 22px; font-weight: 500; color: var(--text-2); align-self: flex-end; padding-bottom: 10px; }
+
+  .weight-display {
+    font-size: 64px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--purple);
+    letter-spacing: -2px;
+    margin: 8px 0;
+    cursor: text;
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .weight-display .unit {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text-2);
+    align-self: flex-end;
+    padding-bottom: 10px;
+  }
   .weight-display.placeholder { color: #CBD5E1; }
+
   .weight-input-row { display: flex; gap: 10px; margin-top: 12px; }
-  .weight-input { flex: 1; height: 52px; border: 2px solid var(--border); border-radius: 12px; font-size: 22px; font-weight: 700; text-align: center; color: var(--text); outline: none; transition: border-color 0.2s; background: var(--bg); -moz-appearance: textfield; }
-  .weight-input::-webkit-inner-spin-button, .weight-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .weight-input {
+    flex: 1;
+    height: 52px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    background: var(--bg);
+    -moz-appearance: textfield;
+  }
+  .weight-input::-webkit-inner-spin-button,
+  .weight-input::-webkit-outer-spin-button { -webkit-appearance: none; }
   .weight-input:focus { border-color: var(--purple); }
-  .save-btn { height: 52px; padding: 0 24px; background: var(--purple); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.15s, transform 0.1s; white-space: nowrap; }
+
+  .save-btn {
+    height: 52px;
+    padding: 0 24px;
+    background: var(--purple);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    white-space: nowrap;
+  }
   .save-btn:active { background: var(--purple-dark); transform: scale(0.97); }
   .save-btn:disabled { background: #C7C9E2; cursor: not-allowed; transform: none; }
+
   .log-status { font-size: 13px; margin-top: 10px; min-height: 20px; color: var(--text-2); }
   .log-status.success { color: var(--green); font-weight: 600; }
-  .log-status.error { color: var(--red); }
+  .log-status.error   { color: var(--red); }
+
   .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .stat-item { text-align: center; }
   .stat-value { font-size: 26px; font-weight: 800; line-height: 1.1; letter-spacing: -0.5px; }
   .stat-label { font-size: 11px; color: var(--text-2); margin-top: 3px; line-height: 1.3; }
-  .stat-value.up { color: var(--red); }
-  .stat-value.down { color: var(--green); }
+  .stat-value.up      { color: var(--red); }
+  .stat-value.down    { color: var(--green); }
   .stat-value.neutral { color: var(--purple); }
+  .stat-value.gold    { color: var(--yellow); }
+
+  .trend-pill {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 20px;
+    padding: 2px 8px;
+    margin-top: 4px;
+  }
+  .trend-pill.down { background: rgba(45,212,160,0.12); color: var(--green); }
+  .trend-pill.up   { background: rgba(255,107,107,0.12); color: var(--red); }
+  .trend-pill.flat { background: var(--purple-light); color: var(--text-2); }
+
+  .goal-bar {
+    margin-top: 14px;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .goal-icon { font-size: 22px; flex-shrink: 0; }
+  .goal-text { flex: 1; }
+  .goal-date { font-size: 17px; font-weight: 800; color: var(--purple); line-height: 1.2; }
+  .goal-sub  { font-size: 11px; color: var(--text-2); margin-top: 2px; }
+  .goal-reached .goal-date { color: var(--green); }
+
+  .streak-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; }
+  .streak-badge { background: var(--purple-light); color: var(--purple); font-weight: 700; font-size: 13px; border-radius: 20px; padding: 4px 12px; }
+  .streak-label { font-size: 13px; color: var(--text-2); }
+
   .chart-wrap { position: relative; height: 200px; margin-top: 4px; }
+
+  .legend { display: flex; gap: 16px; justify-content: center; margin-bottom: 10px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-2); }
+  .legend-dot  { width: 10px; height: 10px; border-radius: 50%; }
+  .legend-dash { width: 14px; height: 2px; border-top: 2px dashed currentColor; border-radius: 2px; }
+
   .yoy-table { width: 100%; border-collapse: collapse; font-size: 14px; }
   .yoy-table th { text-align: right; font-size: 11px; font-weight: 600; color: var(--text-2); padding-bottom: 8px; border-bottom: 1px solid var(--border); }
   .yoy-table th:first-child { text-align: left; }
@@ -54,39 +182,38 @@
   .yoy-table .pos { color: var(--red); }
   .yoy-table .neg { color: var(--green); }
   .yoy-table .cur-row td { color: var(--purple); font-weight: 700; }
-  .streak-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; }
-  .streak-badge { background: var(--purple-light); color: var(--purple); font-weight: 700; font-size: 13px; border-radius: 20px; padding: 4px 12px; }
-  .streak-label { font-size: 13px; color: var(--text-2); }
-  .skeleton { background: linear-gradient(90deg, #E8EAF0 25%, #F3F4F8 50%, #E8EAF0 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 8px; color: transparent !important; pointer-events: none; }
-  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-  .legend { display: flex; gap: 16px; justify-content: center; margin-bottom: 10px; }
-  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-2); }
-  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .skeleton {
+    background: linear-gradient(90deg, #E8EAF0 25%, #F3F4F8 50%, #E8EAF0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 8px;
+    color: transparent !important;
+    user-select: none;
+    pointer-events: none;
+  }
+  @keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
   .empty-msg { text-align: center; color: var(--text-2); font-size: 14px; padding: 20px 0; }
-  .loading-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 100; transition: opacity 0.4s; }
-  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-  .spinner { width: 40px; height: 40px; border: 3px solid var(--purple-light); border-top-color: var(--purple); border-radius: 50%; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { color: var(--text-2); font-size: 14px; }
 </style>
 </head>
 <body>
 
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="spinner"></div>
-  <div class="loading-text">Loading your data…</div>
-</div>
-
 <div class="header">
   <h1>⚖️ Weight Tracker</h1>
-  <div class="date" id="headerDate"></div>
+  <div class="date" id="headerDate">Loading…</div>
 </div>
 
 <div class="cards">
+
   <div class="card log-card">
     <div class="card-title">Today's Weight</div>
     <div class="weight-display placeholder" id="weightDisplay">
-      <span id="weightVal">—</span><span class="unit">lbs</span>
+      <span id="weightVal">—</span>
+      <span class="unit">lbs</span>
     </div>
     <div class="weight-input-row">
       <input type="number" class="weight-input" id="weightInput" placeholder="e.g. 162.4" step="0.1" min="50" max="700" inputmode="decimal">
@@ -98,144 +225,329 @@
   <div class="card">
     <div class="card-title">Stats</div>
     <div class="stats-grid">
-      <div class="stat-item"><div class="stat-value neutral skeleton" id="stat7avg">——</div><div class="stat-label">7-day average</div></div>
-      <div class="stat-item"><div class="stat-value skeleton" id="statWeekRate">——</div><div class="stat-label">lbs/week (30d trend)</div></div>
-      <div class="stat-item"><div class="stat-value skeleton" id="statYTD">——</div><div class="stat-label">Change since Jan 1</div></div>
-      <div class="stat-item"><div class="stat-value skeleton" id="statVsLastYear">——</div><div class="stat-label">vs same day last year</div></div>
+      <div class="stat-item">
+        <div class="stat-value neutral skeleton" id="stat7avg">——</div>
+        <div class="stat-label">7-day average</div>
+        <div id="avgTrendPill" style="display:none"></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value skeleton" id="statWeekRate">——</div>
+        <div class="stat-label">lbs/week (30d trend)</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value skeleton" id="statYTD">——</div>
+        <div class="stat-label">Change since Jan 1</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value skeleton" id="statVsLastYear">——</div>
+        <div class="stat-label">vs same day last year</div>
+      </div>
     </div>
-    <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px;">
-      <div class="streak-row"><span class="streak-badge skeleton" id="daysLogged">— days</span><span class="streak-label">logged this year</span></div>
+    <div class="goal-bar" id="goalBar" style="display:none">
+      <div class="goal-icon">🎯</div>
+      <div class="goal-text" id="goalText">
+        <div class="goal-date" id="goalDate">—</div>
+        <div class="goal-sub" id="goalSub">—</div>
+      </div>
+    </div>
+    <div class="streak-row">
+      <span class="streak-badge" id="daysLogged">—</span>
+      <span class="streak-label">days logged this year</span>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-title">Last 90 Days</div>
+    <div class="card-title">Last 30 Days</div>
     <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#6C63FF"></div><span id="legendThisYear">This year</span></div>
-      <div class="legend-item"><div class="legend-dot" style="background:#CBD5E1"></div><span id="legendLastYear">Last year</span></div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#6C63FF"></div>
+        <span id="legendThisYear">This year</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#CBD5E1"></div>
+        <span id="legendLastYear">Last year</span>
+      </div>
+      <div class="legend-item" style="color:#6C63FF">
+        <div class="legend-dash" style="color:#6C63FF"></div>
+        <span>Trend</span>
+      </div>
     </div>
-    <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+    <div class="chart-wrap">
+      <canvas id="trendChart"></canvas>
+    </div>
   </div>
 
   <div class="card">
     <div class="card-title">Year Over Year</div>
     <div id="yoyContent"><div class="empty-msg">Loading…</div></div>
   </div>
+
 </div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbxd6Ao8zYbGBxx8J143tonOR-Uw-9qKIalC5VmjWCOdT00Ti0fyVt2us0skPYwArxFNNg/exec';
+const API         = 'https://script.google.com/macros/s/AKfycbxd6Ao8zYbGBxx8J143tonOR-Uw-9qKIalC5VmjWCOdT00Ti0fyVt2us0skPYwArxFNNg/exec';
+const GOAL_WEIGHT = 145;
+
+(function() {
+  const now  = new Date();
+  const opts = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
+  document.getElementById('headerDate').textContent = now.toLocaleDateString('en-US', opts);
+})();
 
 function jsonp(url) {
   return new Promise((resolve, reject) => {
-    const cb = '__wt_' + Date.now();
+    const cb     = '__wt_' + Date.now();
     const script = document.createElement('script');
-    window[cb] = (data) => { delete window[cb]; script.remove(); resolve(data); };
-    script.onerror = () => { delete window[cb]; script.remove(); reject(new Error('Request failed — check your Apps Script deployment')); };
-    script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
+    window[cb]   = (data) => { delete window[cb]; script.remove(); resolve(data); };
+    script.onerror = () => { delete window[cb]; script.remove(); reject(new Error('Network request failed')); };
+    script.src   = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
     document.head.appendChild(script);
   });
 }
 
-document.getElementById('headerDate').textContent = new Date().toLocaleDateString('en-US', {
-  weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
-});
-
 let trendChart = null;
 
-async function loadDashboard() {
-  try {
-    const data = await jsonp(API + '?action=getData');
-    renderDashboard(data);
-    document.getElementById('loadingOverlay').classList.add('hidden');
-  } catch (err) {
-    document.getElementById('loadingOverlay').classList.add('hidden');
-    document.getElementById('logStatus').textContent = 'Could not load data: ' + err.message;
-    document.getElementById('logStatus').className = 'log-status error';
-  }
+function loadDashboard() {
+  jsonp(API + '?action=getData')
+    .then(renderDashboard)
+    .catch(function(err) {
+      const st = document.getElementById('logStatus');
+      st.textContent = 'Could not load data: ' + err.message;
+      st.className   = 'log-status error';
+    });
 }
 
 function renderDashboard(data) {
+  const { currentYear } = data;
+
   const wDisp = document.getElementById('weightDisplay');
+  const wVal  = document.getElementById('weightVal');
   if (data.todayWeight !== null) {
-    document.getElementById('weightVal').textContent = data.todayWeight;
+    wVal.textContent = data.todayWeight;
     wDisp.classList.remove('placeholder');
     document.getElementById('weightInput').value = data.todayWeight;
     document.getElementById('logStatus').textContent = '✓ Already logged today';
     document.getElementById('logStatus').className = 'log-status success';
   } else {
-    document.getElementById('weightVal').textContent = '—';
+    wVal.textContent = '—';
     wDisp.classList.add('placeholder');
   }
-  setStat('stat7avg', data.sevenDayAvg);
-  setChangeStat('statWeekRate', data.weeklyRate);
-  setChangeStat('statYTD', data.totalChangeThisYear);
-  if (data.lastYearSameDay !== null && data.latestWeight !== null) {
-    setChangeStat('statVsLastYear', Math.round((data.latestWeight - data.lastYearSameDay) * 10) / 10);
-  } else {
-    clearStat('statVsLastYear');
+
+  const avgEl = document.getElementById('stat7avg');
+  avgEl.classList.remove('skeleton');
+  avgEl.textContent = data.sevenDayAvg !== null ? data.sevenDayAvg : '—';
+  avgEl.className   = 'stat-value neutral';
+
+  if (data.sevenDayAvgTrend !== null && data.sevenDayAvgTrend !== undefined) {
+    const pill = document.getElementById('avgTrendPill');
+    pill.style.display = '';
+    const t = data.sevenDayAvgTrend;
+    if (t < 0) {
+      pill.innerHTML = `<span class="trend-pill down">↓ ${Math.abs(t)} vs prev week</span>`;
+    } else if (t > 0) {
+      pill.innerHTML = `<span class="trend-pill up">↑ ${t} vs prev week</span>`;
+    } else {
+      pill.innerHTML = `<span class="trend-pill flat">→ flat vs prev week</span>`;
+    }
   }
+
+  if (data.weeklyRate !== null) {
+    const el   = document.getElementById('statWeekRate');
+    el.classList.remove('skeleton');
+    const sign = data.weeklyRate > 0 ? '+' : '';
+    el.textContent = sign + data.weeklyRate;
+    el.className   = 'stat-value ' + (data.weeklyRate < 0 ? 'down' : data.weeklyRate > 0 ? 'up' : 'neutral');
+  } else {
+    clearStat('statWeekRate', '—');
+  }
+
+  if (data.totalChangeThisYear !== null) {
+    const el   = document.getElementById('statYTD');
+    el.classList.remove('skeleton');
+    const sign = data.totalChangeThisYear > 0 ? '+' : '';
+    el.textContent = sign + data.totalChangeThisYear;
+    el.className   = 'stat-value ' + (data.totalChangeThisYear < 0 ? 'down' : data.totalChangeThisYear > 0 ? 'up' : 'neutral');
+  } else {
+    clearStat('statYTD', '—');
+  }
+
+  if (data.lastYearSameDay !== null && data.latestWeight !== null) {
+    const el   = document.getElementById('statVsLastYear');
+    el.classList.remove('skeleton');
+    const diff = Math.round((data.latestWeight - data.lastYearSameDay) * 10) / 10;
+    const sign = diff > 0 ? '+' : '';
+    el.textContent = sign + diff;
+    el.className   = 'stat-value ' + (diff < 0 ? 'down' : diff > 0 ? 'up' : 'neutral');
+  } else {
+    clearStat('statVsLastYear', '—');
+  }
+
+  const goalBar  = document.getElementById('goalBar');
+  const goalDate = document.getElementById('goalDate');
+  const goalSub  = document.getElementById('goalSub');
+  const goalText = document.getElementById('goalText');
+
+  if (data.latestWeight !== null) {
+    goalBar.style.display = '';
+    if (data.latestWeight <= GOAL_WEIGHT) {
+      goalText.classList.add('goal-reached');
+      goalDate.textContent = '🎉 Goal reached!';
+      goalSub.textContent  = 'You hit ' + GOAL_WEIGHT + ' lbs!';
+    } else if (data.weeklyRate !== null && data.weeklyRate < 0) {
+      const lossPerDay = Math.abs(data.weeklyRate) / 7;
+      const daysToGoal = Math.round((data.latestWeight - GOAL_WEIGHT) / lossPerDay);
+      const projDate   = new Date();
+      projDate.setDate(projDate.getDate() + daysToGoal);
+      const dateStr    = projDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      goalDate.textContent = dateStr;
+      goalSub.textContent  = daysToGoal + ' days to ' + GOAL_WEIGHT + ' lbs at current pace';
+    } else {
+      goalDate.textContent = 'N/A';
+      goalSub.textContent  = 'No downward trend in last 30 days';
+    }
+  }
+
   const dlEl = document.getElementById('daysLogged');
   dlEl.classList.remove('skeleton');
   dlEl.textContent = (data.daysLoggedThisYear || 0) + ' days';
-  document.getElementById('legendThisYear').textContent = String(data.currentYear);
-  document.getElementById('legendLastYear').textContent = String(data.currentYear - 1);
+
+  document.getElementById('legendThisYear').textContent = String(currentYear);
+  document.getElementById('legendLastYear').textContent = String(currentYear - 1);
+
   renderChart(data);
   renderYoY(data);
 }
 
-function setStat(id, value) {
+function clearStat(id, text) {
   const el = document.getElementById(id);
   el.classList.remove('skeleton');
-  el.textContent = (value !== null && value !== undefined) ? value : '—';
+  el.textContent = text || '—';
+  el.className   = 'stat-value neutral';
 }
 
-function setChangeStat(id, value) {
-  const el = document.getElementById(id);
-  el.classList.remove('skeleton');
-  if (value !== null && value !== undefined) {
-    el.textContent = (value > 0 ? '+' : '') + value;
-    el.className = 'stat-value ' + (value < 0 ? 'down' : value > 0 ? 'up' : 'neutral');
-  } else {
-    el.textContent = '—';
-    el.className = 'stat-value neutral';
-  }
-}
+function computeTrendline(values) {
+  const pts = values
+    .map((v, i) => (v !== null && v !== undefined ? { x: i, y: v } : null))
+    .filter(Boolean);
+  if (pts.length < 3) return values.map(() => null);
 
-function clearStat(id) {
-  const el = document.getElementById(id);
-  el.classList.remove('skeleton');
-  el.textContent = '—';
-  el.className = 'stat-value neutral';
+  const n     = pts.length;
+  const xMean = pts.reduce((s, p) => s + p.x, 0) / n;
+  const yMean = pts.reduce((s, p) => s + p.y, 0) / n;
+  const num   = pts.reduce((s, p) => s + (p.x - xMean) * (p.y - yMean), 0);
+  const den   = pts.reduce((s, p) => s + (p.x - xMean) ** 2, 0);
+  const slope = den !== 0 ? num / den : 0;
+  const intcp = yMean - slope * xMean;
+
+  const result = values.map(() => null);
+  const firstX = pts[0].x;
+  const lastX  = pts[pts.length - 1].x;
+  result[firstX] = Math.round((slope * firstX + intcp) * 10) / 10;
+  result[lastX]  = Math.round((slope * lastX  + intcp) * 10) / 10;
+  return result;
 }
 
 function renderChart(data) {
-  const labels = data.chartLabels || [];
-  const thisYr = data.chartWeights || [];
+  const labels = data.chartLabels   || [];
+  const thisYr = data.chartWeights  || [];
   const lastYr = data.chartLastYear || [];
+
   if (trendChart) { trendChart.destroy(); trendChart = null; }
-  if (!labels.length) return;
-  const step = Math.max(1, Math.floor(labels.length / 10));
-  const displayLabels = labels.map((l, i) => i % step === 0 ? l : '');
-  const allVals = [...thisYr, ...lastYr].filter(v => v != null);
+  if (labels.length === 0) return;
+
+  const step = Math.max(1, Math.floor(labels.length / 6));
+  const displayLabels = labels.map((l, i) => (i % step === 0 || i === labels.length - 1 ? l : ''));
+
+  const allVals = [...thisYr, ...lastYr].filter(v => v !== null && v !== undefined);
   const minY = allVals.length ? Math.floor(Math.min(...allVals)) - 3 : 140;
-  const maxY = allVals.length ? Math.ceil(Math.max(...allVals)) + 3 : 200;
-  trendChart = new Chart(document.getElementById('trendChart').getContext('2d'), {
+  const maxY = allVals.length ? Math.ceil (Math.max(...allVals)) + 3 : 200;
+
+  const trendThisYr = computeTrendline(thisYr);
+  const trendLastYr = computeTrendline(lastYr);
+
+  const ctx = document.getElementById('trendChart').getContext('2d');
+  trendChart = new Chart(ctx, {
     type: 'line',
     data: {
       labels: displayLabels,
       datasets: [
-        { label: String(data.currentYear), data: thisYr, borderColor: '#6C63FF', backgroundColor: 'rgba(108,99,255,0.08)', borderWidth: 2.5, pointRadius: 0, pointHoverRadius: 5, tension: 0.35, fill: true, spanGaps: true },
-        { label: String(data.currentYear - 1), data: lastYr, borderColor: '#CBD5E1', borderWidth: 1.5, pointRadius: 0, pointHoverRadius: 4, tension: 0.35, fill: false, spanGaps: true }
+        {
+          label: String(data.currentYear),
+          data: thisYr,
+          borderColor: '#6C63FF',
+          backgroundColor: 'rgba(108,99,255,0.07)',
+          borderWidth: 2.5,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          tension: 0.3,
+          fill: true,
+          spanGaps: true,
+          order: 2,
+        },
+        {
+          label: String(data.currentYear) + ' trend',
+          data: trendThisYr,
+          borderColor: '#6C63FF',
+          borderWidth: 2,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          tension: 0,
+          fill: false,
+          spanGaps: true,
+          order: 1,
+        },
+        {
+          label: String(data.currentYear - 1),
+          data: lastYr,
+          borderColor: '#CBD5E1',
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          tension: 0.3,
+          fill: false,
+          spanGaps: true,
+          order: 3,
+        },
+        {
+          label: String(data.currentYear - 1) + ' trend',
+          data: trendLastYr,
+          borderColor: '#CBD5E1',
+          borderWidth: 1.5,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          tension: 0,
+          fill: false,
+          spanGaps: true,
+          order: 2,
+        },
       ]
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
+      responsive: true,
+      maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y != null ? ctx.dataset.label + ': ' + ctx.parsed.y + ' lbs' : null } } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          filter: item => !item.dataset.label.includes('trend'),
+          callbacks: {
+            label: ctx => ctx.parsed.y !== null ? ctx.dataset.label + ': ' + ctx.parsed.y + ' lbs' : null
+          }
+        }
+      },
       scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#9CA3AF', maxRotation: 0 } },
-        y: { min: minY, max: maxY, grid: { color: '#F0F1F5' }, ticks: { font: { size: 11 }, color: '#9CA3AF' } }
+        x: {
+          grid: { display: false },
+          ticks: { font: { size: 10 }, color: '#9CA3AF', maxRotation: 0 }
+        },
+        y: {
+          min: minY,
+          max: maxY,
+          grid: { color: '#F0F1F5' },
+          ticks: { font: { size: 11 }, color: '#9CA3AF' }
+        }
       }
     }
   });
@@ -244,59 +556,78 @@ function renderChart(data) {
 function renderYoY(data) {
   const container = document.getElementById('yoyContent');
   const yoy = data.yoySummary || [];
-  if (!yoy.length) { container.innerHTML = '<div class="empty-msg">No data found</div>'; return; }
-  container.innerHTML = `<table class="yoy-table">
-    <thead><tr><th>Year</th><th>Start</th><th>Latest</th><th>Change</th><th>Days</th></tr></thead>
-    <tbody>${yoy.map(e => {
-      const isCur = e.year === data.currentYear;
-      const cls = e.change < 0 ? 'neg' : e.change > 0 ? 'pos' : '';
-      const sign = e.change > 0 ? '+' : '';
-      return `<tr class="${isCur ? 'cur-row' : ''}">
-        <td>${e.year}${isCur ? ' ★' : ''}</td>
-        <td>${e.start ?? '—'}</td><td>${e.end ?? '—'}</td>
-        <td class="${cls}">${e.change != null ? sign + e.change : '—'}</td>
-        <td>${e.days}</td>
-      </tr>`;
-    }).join('')}</tbody>
-  </table>`;
+  if (yoy.length === 0) {
+    container.innerHTML = '<div class="empty-msg">No historical data found</div>';
+    return;
+  }
+
+  const sorted = [...yoy].sort((a, b) => b.year - a.year);
+
+  const rows = sorted.map(entry => {
+    const isCurrent   = entry.year === data.currentYear;
+    const changeClass = entry.change < 0 ? 'neg' : entry.change > 0 ? 'pos' : '';
+    const sign        = entry.change > 0 ? '+' : '';
+    const startVal    = entry.start  != null ? entry.start  : '—';
+    const endVal      = entry.end    != null ? entry.end    : '—';
+    const changeVal   = entry.change != null ? sign + entry.change : '—';
+    return `<tr class="${isCurrent ? 'cur-row' : ''}">
+      <td>${entry.year}${isCurrent ? ' ★' : ''}</td>
+      <td>${startVal}</td>
+      <td>${endVal}</td>
+      <td class="${changeClass}">${changeVal}</td>
+      <td>${entry.days}</td>
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `
+    <table class="yoy-table">
+      <thead><tr><th>Year</th><th>Start</th><th>Latest</th><th>Change</th><th>Days</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
 }
 
-async function saveWeight() {
+function saveWeight() {
   const input  = document.getElementById('weightInput');
   const btn    = document.getElementById('saveBtn');
   const status = document.getElementById('logStatus');
   const val    = parseFloat(input.value);
+
   if (isNaN(val) || val < 50 || val > 700) {
     status.textContent = 'Please enter a valid weight (50–700 lbs)';
-    status.className = 'log-status error';
+    status.className   = 'log-status error';
     return;
   }
-  btn.disabled = true;
+
+  btn.disabled    = true;
   btn.textContent = 'Saving…';
   status.textContent = '';
-  try {
-    const result = await jsonp(API + '?action=logWeight&weight=' + val);
-    btn.disabled = false;
-    btn.textContent = 'Save';
-    if (result.success) {
-      status.textContent = '✓ Saved ' + val + ' lbs to your spreadsheet!';
-      status.className = 'log-status success';
-      document.getElementById('weightVal').textContent = val;
-      document.getElementById('weightDisplay').classList.remove('placeholder');
-      setTimeout(loadDashboard, 1000);
-    } else {
-      status.textContent = 'Error: ' + result.error;
-      status.className = 'log-status error';
-    }
-  } catch (err) {
-    btn.disabled = false;
-    btn.textContent = 'Save';
-    status.textContent = 'Failed: ' + err.message;
-    status.className = 'log-status error';
-  }
+  status.className   = 'log-status';
+
+  jsonp(API + '?action=logWeight&weight=' + val)
+    .then(function(result) {
+      btn.disabled    = false;
+      btn.textContent = 'Save';
+      if (result.success) {
+        status.textContent = '✓ Saved ' + val + ' lbs!';
+        status.className   = 'log-status success';
+        document.getElementById('weightVal').textContent = val;
+        document.getElementById('weightDisplay').classList.remove('placeholder');
+        setTimeout(loadDashboard, 800);
+      } else {
+        status.textContent = 'Error: ' + result.error;
+        status.className   = 'log-status error';
+      }
+    })
+    .catch(function(err) {
+      btn.disabled    = false;
+      btn.textContent = 'Save';
+      status.textContent = 'Failed: ' + err.message;
+      status.className   = 'log-status error';
+    });
 }
 
-document.getElementById('weightInput').addEventListener('keydown', e => {
+document.getElementById('weightInput').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') saveWeight();
 });
 
